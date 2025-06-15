@@ -1,10 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 export default function Menu() {
   const [isOthersOpen, setIsOthersOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // 外側クリックでメニューを閉じる
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOthersOpen(false);
+      }
+    }
+
+    if (isOthersOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOthersOpen]);
 
   return (
     <nav className="fixed top-0 left-0 right-0 bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 p-4 z-50">
@@ -19,12 +37,11 @@ export default function Menu() {
             </span>
             <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-600 group-hover:w-full transition-all duration-300"></div>
           </Link>
-          <div 
-            className="relative"
-            onMouseEnter={() => setIsOthersOpen(true)}
-            onMouseLeave={() => setIsOthersOpen(false)}
-          >
-            <button className="relative group flex items-center gap-2">
+          <div className="relative" ref={menuRef}>
+            <button 
+              className="relative group flex items-center gap-2"
+              onClick={() => setIsOthersOpen(!isOthersOpen)}
+            >
               <span className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-300">
                 その他
               </span>
